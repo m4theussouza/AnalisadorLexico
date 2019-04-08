@@ -1,0 +1,8 @@
+AlgOritmo
+    IniciO
+        INTEIRO A1, b2;
+        real c3 <- 0.3, d4<-e-2;
+        Cadeia string <- "Ola Mundo";
+        SE A1 < b2 $ c3 >= d4 & A1 > d4 Faca 
+            A1 <- c3 + d4 $ A1 <- b2 
+    Fim /* programa teste */
