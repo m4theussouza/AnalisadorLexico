@@ -98,7 +98,7 @@ Atomo reconhece_NUM(void); //reconhece numeros reais ou inteiros e armazena os l
 Atomo proximo_token(void); //maquina de estado que reconhece os atomos
 char proximo_char(void); //adianta o ponteiro do buffer e retorna o char atual
 void retract_char(void); //atrasa o ponteiro do buffer
-char char_atual(); //retorna o caracter atual sem adiantar o ponteiro do buffer
+char char_atual(void); //retorna o caracter atual sem adiantar o ponteiro do buffer
 
 //variaveis globais
 char *buffer; //guarda os valores lidos do arquivo ptl
