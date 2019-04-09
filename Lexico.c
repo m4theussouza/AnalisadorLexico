@@ -9,6 +9,8 @@
     Professor: Leonardo Takuno
     Trabalho de Teoria da Computação e Compiladores
     Analisador Léxico
+    Versão: gcc version 5.1.0 (tdm64-1)
+    make: gcc -std=c11 Lexico.c -o Lexico -W -Wall -pedantic
 */
 
 //tipo enum com os atomos
@@ -98,7 +100,7 @@ Atomo reconhece_NUM(void); //reconhece numeros reais ou inteiros e armazena os l
 Atomo proximo_token(void); //maquina de estado que reconhece os atomos
 char proximo_char(void); //adianta o ponteiro do buffer e retorna o char atual
 void retract_char(void); //atrasa o ponteiro do buffer
-char char_atual(void); //retorna o caracter atual sem adiantar o ponteiro do buffer
+char char_atual(); //retorna o caracter atual sem adiantar o ponteiro do buffer
 
 //variaveis globais
 char *buffer; //guarda os valores lidos do arquivo ptl
@@ -193,7 +195,6 @@ Atomo reconhece_OP_RELACIONAL() {
 Atomo reconhece_SEM_ATRIBUICAO() {
     char c;
     char *palavra;
-    Atomo atomo = ERRO;
     palavra = (char*) calloc( 4 , sizeof(char) );  
 
     lexeme = palavra; //guarda endereço incial do ponteiro para char palavra
@@ -277,7 +278,7 @@ Atomo reconhece_COMENTARIO() {
     buffer = buffer - 2;
     /*
         para o comentario precisamos sempre estar olhando o caracter
-        da frente para saber se temos a sequencia /*
+        da frente para saber se temos a sequencia aspas e astericas
     */
     c = proximo_char();
     char_posterior = proximo_char();
@@ -305,11 +306,11 @@ Atomo reconhece_COMENTARIO() {
         buffer++; //avança para o proximo token
         return COMENTARIO;
     }
-
+    return ERRO;
 }
 
 Atomo reconhece_FRASE() {
-    char c, d;
+    char c, char_posterior;
     char *palavra;
     
     palavra = (char*) calloc( 500, sizeof(char) );    
@@ -330,9 +331,9 @@ Atomo reconhece_FRASE() {
     if ( c == '"') {
         *palavra++ = c;
         c = proximo_char();
-        d = char_atual();
-        while( c != '"' || d == '\\'){
-            if ( c == '"' && d == '\\' ) {
+        char_posterior = char_atual();
+        while( c != '"' || char_posterior == '\\'){
+            if ( c == '"' && char_posterior == '\\' ) {
                 *palavra++ = c;
                 buffer++;
             } else if ( c == '\\' ) {
@@ -343,8 +344,8 @@ Atomo reconhece_FRASE() {
             }
     
             c = proximo_char();
-            d = char_atual();
-            if ( c == '\n' || c == '"' && d == '"') {
+            char_posterior = char_atual();
+            if ( (c == '\n') || (c == '"' && char_posterior == '"') ) {
                 lexeme = "ERRO";
                 return ERRO;
             }
@@ -355,7 +356,7 @@ Atomo reconhece_FRASE() {
         *palavra++ = c;
         return FRASE;
     }
-
+    return ERRO;
 }
 
 Atomo reconhece_ID_E_PALAVRA() {
@@ -580,7 +581,7 @@ Atomo proximo_token() {
         inicia o algoritmo para buscar atomo sem atribuicao 
     */
     if ( IdentificaSemAtribuicao == 1 ) {
-        for(int i = 0; i < strlen(semAtribuicao); i++) {
+        for(int i = 0; i < (int) strlen(semAtribuicao); i++) {
             if ( c == semAtribuicao[i] ) {
                 atomo = reconhece_SEM_ATRIBUICAO();
             }
@@ -590,17 +591,17 @@ Atomo proximo_token() {
     return atomo;
 }
 
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     Atomo atomo;
     FILE *f;
-    char c, *string, *nomeArquivo;
+    char *string, *nomeArquivo;
     int contaAtomo = 0;
 
     /*
         guarda o nome do arquivo passado como argumento no incio do programa
         e abre o arquivo para leitura
     */
-    nomeArquivo = argv[1];
+    nomeArquivo = argv[argc-1];
     f = fopen(nomeArquivo, "r");
     
     //conta quando carateres tem no arquivo
